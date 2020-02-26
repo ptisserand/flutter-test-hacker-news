@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:test_hacker_news/commentListPage.dart';
 import 'package:test_hacker_news/story.dart';
 import 'package:test_hacker_news/webservice.dart';
 
@@ -30,6 +31,19 @@ class _TopArticleListState extends State<TopArticleList> {
     });
   }
 
+  void _navigateToShowCommentsPage(BuildContext context, int index) async {
+    final story = _stories[index];
+    final responses = await WebService().getCommentsByStory(story);
+    final comments = responses.map((response) {
+      final json = jsonDecode(response.body);
+      return Comment.fromJSON(json);
+    }).toList();
+
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => CommentListPage(story: story, comments: comments)
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +56,7 @@ class _TopArticleListState extends State<TopArticleList> {
         itemBuilder: (_, index) {
           return ListTile(
             onTap: () {
-
+              _navigateToShowCommentsPage(context, index);
             },
             title: Text(_stories[index].title, style: TextStyle(fontSize: 18)),
             trailing: Container(
