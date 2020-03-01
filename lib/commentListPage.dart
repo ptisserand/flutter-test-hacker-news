@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:test_hacker_news/story.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class CommentListPage extends StatelessWidget {
   final List<Comment> comments;
@@ -7,6 +9,14 @@ class CommentListPage extends StatelessWidget {
 
   CommentListPage({this.story, this.comments});
   
+  _launchUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +40,13 @@ class CommentListPage extends StatelessWidget {
             ),
             title: Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: Text(this.comments[index].text, style: TextStyle(fontSize: 18))
+              // child: Text(this.comments[index].text, style: TextStyle(fontSize: 18))
+              child: Html(
+                data: this.comments[index].text,
+                onLinkTap: (url) {
+                  _launchUrl(url);
+                }
+              )
             ),
           );
         }
